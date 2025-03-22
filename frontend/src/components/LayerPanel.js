@@ -1,78 +1,87 @@
 import React, { useState } from 'react';
+import CheckboxTree from 'react-checkbox-tree';
+import 'react-checkbox-tree/lib/react-checkbox-tree.css';
+import 'font-awesome/css/font-awesome.css';
 
 function LayerPanel({ showCities, setShowCities, showRoads, setShowRoads, showRegions, setShowRegions }) {
-  const [showExampleGroup, setShowExampleGroup] = useState(true);
-  const [showSystemLayers, setShowSystemLayers] = useState(true);
-  const [showUserLayers, setShowUserLayers] = useState(true);
-
-  return (
-    <div style={{
-      position: 'absolute',
-      top: '10px',
-      left: '10px',
-      background: 'white',
-      padding: '10px',
-      borderRadius: '8px',
-      zIndex: 1000,
-      boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-      maxWidth: '300px',
-      fontSize: '14px'
-    }}>
-      {/* Örnek Katmanlar */}
-      <div>
-        <div
-          style={{ cursor: 'pointer', fontWeight: 'bold' }}
-          onClick={() => setShowExampleGroup(!showExampleGroup)}
-        >
-          {showExampleGroup ? '📂' : '📁'} Örnek Katmanlar
-        </div>
-
-        {showExampleGroup && (
-          <div style={{ marginLeft: '15px' }}>
-            <div
-              style={{ cursor: 'pointer', fontWeight: 'bold' }}
-              onClick={() => setShowSystemLayers(!showSystemLayers)}
-            >
-              {showSystemLayers ? '📂' : '📁'} Sistem Katmanları
-            </div>
-
-            {showSystemLayers && (
-              <div style={{ marginLeft: '15px' }}>
-                <label>
-                  <input type="checkbox" checked={showCities} onChange={() => setShowCities(!showCities)} />
-                  Şehirler
-                </label><br />
-                <label>
-                  <input type="checkbox" checked={showRoads} onChange={() => setShowRoads(!showRoads)} />
-                  Yollar
-                </label><br />
-                <label>
-                  <input type="checkbox" checked={showRegions} onChange={() => setShowRegions(!showRegions)} />
-                  Bölgeler
-                </label>
-              </div>
-            )}
-          </div>
-        )}
+    const [expanded, setExpanded] = useState([
+      'exampleGroup',
+      'systemLayers',
+      'userLayers'
+    ]);
+  
+    const checked = [];
+    if (showCities) checked.push('cities');
+    if (showRoads) checked.push('roads');
+    if (showRegions) checked.push('regions');
+  
+    const nodes = [
+      {
+        value: 'exampleGroup',
+        label: '📂 Örnek Katmanlar',
+        children: [
+          {
+            value: 'systemLayers',
+            label: '📁 Sistem Katmanları',
+            children: [
+              { value: 'cities', label: 'Şehirler' },
+              { value: 'roads', label: 'Yollar' },
+              { value: 'regions', label: 'Bölgeler' },
+            ],
+          },
+        ],
+      },
+      {
+        value: 'userLayers',
+        label: '📂 Kullanıcı Tabakaları',
+        children: [
+          {
+            value: 'noData',
+            label: <span style={{ fontStyle: 'italic', color: '#888' }}>(Henüz veri yok)</span>,
+            disabled: true,
+          },
+        ],
+      },
+    ];
+  
+    const handleCheck = (checkedNodes) => {
+      setShowCities(checkedNodes.includes('cities'));
+      setShowRoads(checkedNodes.includes('roads'));
+      setShowRegions(checkedNodes.includes('regions'));
+    };
+  
+    return (
+      <div style={{
+        position: 'absolute',
+        top: '10px',
+        left: '10px',
+        background: 'white',
+        padding: '10px',
+        borderRadius: '8px',
+        zIndex: 1000,
+        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+        width: '260px',
+        fontSize: '14px'
+      }}>
+        <CheckboxTree
+          nodes={nodes}
+          checked={checked}
+          expanded={expanded}
+          onCheck={handleCheck}
+          onExpand={setExpanded}
+          icons={{
+            check: <span className="fa fa-check-square" />,
+            uncheck: <span className="fa fa-square-o" />,
+            halfCheck: <span className="fa fa-check-square-o" />,
+            expandClose: <span className="fa fa-chevron-right" />,
+            expandOpen: <span className="fa fa-chevron-down" />,
+            parentClose: <span className="fa fa-folder" />,
+            parentOpen: <span className="fa fa-folder-open" />,
+            leaf: <span className="fa fa-file" />
+          }}
+        />
       </div>
-
-      {/* Kullanıcı Tabakaları */}
-      <div style={{ marginTop: '10px' }}>
-        <div
-          style={{ cursor: 'pointer', fontWeight: 'bold' }}
-          onClick={() => setShowUserLayers(!showUserLayers)}
-        >
-          {showUserLayers ? '📂' : '📁'} Kullanıcı Tabakaları
-        </div>
-
-        {showUserLayers && (
-          <div style={{ marginLeft: '15px', fontStyle: 'italic', color: '#888' }}>
-            (Henüz veri yok)
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default LayerPanel;
+    );
+  }
+  
+  export default LayerPanel;

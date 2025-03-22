@@ -30,7 +30,7 @@ services:
       - "8001:8000"
     depends_on:
       - db
-      
+
   frontend:
     build: ./frontend
     container_name: react-frontend
@@ -38,6 +38,20 @@ services:
       - "80:80"
     depends_on:
       - backend
-
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: react-frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+      
 volumes:
   pgdata:
