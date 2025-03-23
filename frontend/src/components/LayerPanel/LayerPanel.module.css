@@ -1,0 +1,29 @@
+.opacitySlider {
+    -webkit-appearance: none;
+    width: 70px;
+    height: 5px;
+    border-radius: 5px;
+    background: #ccc;
+    outline: none;
+    transition: 0.2s;
+    margin-left: 8px;
+  }
+  
+  .opacitySlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+  }
+  
+  .opacitySlider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+  }
+  

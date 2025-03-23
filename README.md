@@ -12,3 +12,6 @@ sudo apt install docker-ce
 Kontrol:
 sudo systemctl status docker
 docker compose version
+
+Kullanıcını docker grubuna ekle:
+sudo usermod -aG docker $USER

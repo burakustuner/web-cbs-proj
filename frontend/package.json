@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "ol": "^7.3.0",
+    "@radix-ui/react-toolbar": "^1.0.5",
     "font-awesome": "^4.7.0",
-    "react-checkbox-tree": "^1.7.2",
+    "ol": "^7.3.0",
     "react": "^18.2.0",
+    "react-checkbox-tree": "^1.7.2",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "@tmcw/togeojson": "^7.0.0",
+    "@xmldom/xmldom": "^0.8.10"
   },
   "scripts": {
     "start": "react-scripts start",
