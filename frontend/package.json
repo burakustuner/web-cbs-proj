@@ -11,7 +11,8 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "@tmcw/togeojson": "^7.0.0",
-    "@xmldom/xmldom": "^0.8.10"
+    "@xmldom/xmldom": "^0.8.10",
+    "react-rnd": "^10.3.8"  
   },
   "scripts": {
     "start": "react-scripts start",

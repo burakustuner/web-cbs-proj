@@ -143,32 +143,40 @@ function App() {
   const handleStyleSave = (layerKey, styles) => {
     const layer = systemLayers[layerKey]?.layer || userLayers.find(l => `user-${l.id}` === layerKey)?.layer;
     if (!layer) return;
-
-    const geometryTypes = {
-      point: styles.point && new Style({
-        image: new CircleStyle({
-          radius: styles.point.radius,
-          fill: new Fill({ color: styles.point.color }),
-          stroke: new Stroke({ color: '#fff', width: 1 })
-        })
-      }),
-      line: styles.line && new Style({
-        stroke: new Stroke({
-          color: styles.line.color,
-          width: styles.line.width
-        })
-      }),
-      polygon: styles.polygon && new Style({
-        stroke: new Stroke({ color: styles.polygon.strokeColor, width: 2 }),
-        fill: new Fill({ color: styles.polygon.fillColor })
-      })
-    };
-
+  
     layer.setStyle((feature) => {
-      const type = feature.getGeometry().getType().toLowerCase();
-      return geometryTypes[type] || null;
+      const type = feature.getGeometry().getType();
+  
+      if ((type === 'Point' || type === 'MultiPoint') && styles.point) {
+        return new Style({
+          image: new CircleStyle({
+            radius: styles.point.radius,
+            fill: new Fill({ color: styles.point.color }),
+            stroke: new Stroke({ color: '#fff', width: 1 })
+          })
+        });
+      }
+  
+      if ((type === 'LineString' || type === 'MultiLineString') && styles.line) {
+        return new Style({
+          stroke: new Stroke({
+            color: styles.line.color,
+            width: styles.line.width
+          })
+        });
+      }
+  
+      if ((type === 'Polygon' || type === 'MultiPolygon') && styles.polygon) {
+        return new Style({
+          stroke: new Stroke({ color: styles.polygon.strokeColor, width: 2 }),
+          fill: new Fill({ color: styles.polygon.fillColor })
+        });
+      }
+  
+      return null;
     });
   };
+  
 
   const removeLayer = (layerKey) => {
     if (!map) return;
@@ -277,19 +285,21 @@ function App() {
           setStyleEditorTargetKey(key);
           setStyleEditorVisible(true);
         }}
+        
       />
 
       <div ref={mapRef} style={{ width: '100vw', height: '100vh' }} />
       <div ref={popupRef} className="ol-popup"></div>
 
       {styleEditorVisible && (
-        <StyleEditorModal
-          layerKey={styleEditorTargetKey}
-          onClose={() => setStyleEditorVisible(false)}
-          onSave={handleStyleSave}
-          userLayers={userLayers}
-        />
-      )}
+  <StyleEditorModal
+    key={styleEditorTargetKey} // 💥 bu satır bileşeni sıfırdan mount eder
+    layerKey={styleEditorTargetKey}
+    onClose={() => setStyleEditorVisible(false)}
+    //onSave={handleStyleSave}
+    userLayers={userLayers}
+  />
+)}
     </>
   );
 }
