@@ -15,3 +15,16 @@ docker compose version
 
 Kullanıcını docker grubuna ekle:
 sudo usermod -aG docker $USER
+
+
+
+tODO:
+Bunlar tamamen opsiyonel fikirler:
+
+🎨 Önizleme: Modal içinde canlı stil örneği gösterebilirsin
+
+💾 Stil Şablonlarını Kaydet / Uygula: Aynı stilleri diğer objelere kolayca uygula
+
+⏪ Geri Al (Undo): Önceki stil yedeğini saklayıp geri döndür
+
+🎯 Stil Tabanlı Arama: “Tüm kırmızı poligonları bul” gibi

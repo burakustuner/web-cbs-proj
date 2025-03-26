@@ -11,6 +11,7 @@ import { fromLonLat } from 'ol/proj';
 import { Fill, Stroke, Style, Circle as CircleStyle } from 'ol/style';
 import Overlay from 'ol/Overlay';
 import API_BASE_URL from './config';
+import { ModalManagerProvider } from './contexts/ModalManagerContext';
 import LayerPanel from './components/LayerPanel/LayerPanel';
 import Toolbar from './components/Toolbar/Toolbar';
 import StyleEditorModal from './components/StyleEditor/StyleEditorModal';
@@ -264,10 +265,11 @@ function App() {
   };
 
   return (
-    <>
+    <ModalManagerProvider>
       <Toolbar
         onImportKML={() => alert("KML import tıklandı")}
         onImportGeoJSON={handleGeoJSONImport}
+        map={map} 
       />
       <LayerPanel
         systemLayers={systemLayers}
@@ -300,7 +302,7 @@ function App() {
     userLayers={userLayers}
   />
 )}
-    </>
+    </ModalManagerProvider>
   );
 }
 

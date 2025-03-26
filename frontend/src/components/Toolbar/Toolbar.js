@@ -2,13 +2,21 @@ import React, { useState } from 'react';
 import * as Toolbar from '@radix-ui/react-toolbar';
 import './Toolbar.css';
 import GeoJSONImport from './tools/GeoJSONImport';
+import EditStyle from './tools/EditStyle';
 
-function CustomToolbar({ onImportKML, onImportGeoJSON }) {
+function CustomToolbar({map, onImportKML, onImportGeoJSON }) {
   const [activeTool, setActiveTool] = useState(null);
 
   return (
     <div className="toolbar-wrapper">
       <Toolbar.Root className="toolbar-root" aria-label="Toolbar demo">
+      <Toolbar.Button
+          className="toolbar-button"
+          onClick={() => setActiveTool(activeTool === 'drawing' ? null : 'drawing')}
+        >
+          📤 Drawing Tools
+        </Toolbar.Button>
+
         <Toolbar.Button
           className="toolbar-button"
           onClick={() => setActiveTool(activeTool === 'import' ? null : 'import')}
@@ -40,12 +48,20 @@ function CustomToolbar({ onImportKML, onImportGeoJSON }) {
           </>
         )}
 
+        {activeTool === 'drawing' && (
+          <>
+            <EditStyle map={map} />
+            <button onClick={() => alert("Geometri Düzenle")}>📄 Edit Geometry</button>
+          </>
+        )}
+
         {activeTool === 'export' && (
           <>
             <button onClick={() => alert("GeoJSON Export")}>🌍 GeoJSON Export</button>
             <button onClick={() => alert("KML Export")}>📄 KML Export</button>
           </>
         )}
+
 
         {activeTool === 'print' && (
           <>

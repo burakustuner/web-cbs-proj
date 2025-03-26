@@ -1,0 +1,40 @@
+.draggable-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  
+  .draggable-modal-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    pointer-events: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .draggable-modal-header {
+    background: #f0f0f0;
+    padding: 8px 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+  }
+  
+  .modal-controls button {
+    margin-left: 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .draggable-modal-body {
+    padding: 16px;
+  }
+  

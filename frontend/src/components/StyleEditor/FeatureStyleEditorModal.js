@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import './StyleEditorModal.css';
-import { applyUserStyleToLayer } from '../../layers/UserLayers';
+import { Style, Stroke, Fill, Circle as CircleStyle } from 'ol/style';
 import ModalWindow from '../ui/ModalWindow';
 
 function rgbaToHex(rgba) {
-  const parts = rgba.match(/rgba?\((\d+), ?(\d+), ?(\d+),? ?([\d.]*)?\)/);
-  if (!parts) return '#000000';
-
+  const parts = rgba?.match(/rgba?\((\d+), ?(\d+), ?(\d+),? ?([\d.]*)?\)/);
+  if (!parts) return '#00ff00';
   const r = parseInt(parts[1]).toString(16).padStart(2, '0');
   const g = parseInt(parts[2]).toString(16).padStart(2, '0');
   const b = parseInt(parts[3]).toString(16).padStart(2, '0');
   return `#${r}${g}${b}`;
 }
 
-function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
-  const [activeTab, setActiveTab] = useState('point');
-  
+function FeatureStyleEditorModal({ feature, onClose }) {
+  const [geometryType, setGeometryType] = useState(null);
+
   const [styles, setStyles] = useState({
     point: {
       color: '#ff0000',
@@ -32,7 +31,7 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
     },
     polygon: {
       strokeColor: '#00ff00',
-      fillColor: '#00ff0055',
+      fillColor: '#00ff00',
       strokeWidth: 2,
       strokeDash: '',
       fillOpacity: 0.3,
@@ -48,23 +47,18 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
       }
     }));
   };
-  const [targetLayer, setTargetLayer] = useState(null);
-  useEffect(() => {
-    const target = userLayers.find(layer => layer.filename === layerKey || `user-${layer.id}` === layerKey);
-    if (!target) return;
-  
-    setTargetLayer(target); // 👈 bunu ekledik
 
-    const features = target.layer.getSource().getFeatures();
-    const getFeatureByType = (type) => features.find(f => f.getGeometry().getType() === type);
-  
-    const styleFunc = target.layer.getStyle();
-  
-    // Nokta
-    const pointFeature = getFeatureByType('Point') || getFeatureByType('MultiPoint');
-    if (pointFeature && styleFunc) {
-      const style = styleFunc(pointFeature);
-      const image = style.getImage();
+  useEffect(() => {
+    const geomType = feature.getGeometry().getType();
+    if (geomType.includes('Point')) setGeometryType('point');
+    else if (geomType.includes('LineString')) setGeometryType('line');
+    else if (geomType.includes('Polygon')) setGeometryType('polygon');
+
+    const style = feature.getStyle?.() || feature._customStyle;
+    if (!style) return;
+
+    if (geomType.includes('Point')) {
+      const image = style.getImage?.();
       setStyles(prev => ({
         ...prev,
         point: {
@@ -75,44 +69,40 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
         },
       }));
     }
-  
-    // Çizgi
-    const lineFeature = getFeatureByType('LineString') || getFeatureByType('MultiLineString');
-    if (lineFeature && styleFunc) {
-      const style = styleFunc(lineFeature);
-      const stroke = style.getStroke();
+
+    if (geomType.includes('LineString')) {
+      const stroke = style.getStroke?.();
       setStyles(prev => ({
         ...prev,
         line: {
           color: stroke?.getColor() || '#0000ff',
           width: stroke?.getWidth() || 2,
           dash: (stroke?.getLineDash() || []).join(','),
-          opacity: 1, // OpenLayers'ta stroke opacity ayrı verilmediği için bu sabit kalabilir
+          opacity: 1,
           cap: stroke?.getLineCap() || 'round',
         },
       }));
     }
-  
-    // Poligon
-    const polygonFeature = getFeatureByType('Polygon') || getFeatureByType('MultiPolygon');
-    if (polygonFeature && styleFunc) {
-      const style = styleFunc(polygonFeature);
-      const stroke = style.getStroke();
-      const fill = style.getFill();
+
+    if (geomType.includes('Polygon')) {
+      const stroke = style.getStroke?.();
+      const fill = style.getFill?.();
       const fillColor = fill?.getColor();
-  
+
       let hex = '#00ff00';
       let opacity = 0.3;
-  
-      if (typeof fillColor === 'string' && fillColor.startsWith('rgba')) {
-        hex = rgbaToHex(fillColor);
-        const matches = fillColor.match(/rgba?\(\d+, \d+, \d+, ([\d\.]+)\)/);
-        if (matches) {
-          opacity = parseFloat(matches[1]);
+
+      if (typeof fillColor === 'string') {
+        if (fillColor.startsWith('rgba')) {
+          hex = rgbaToHex(fillColor);
+          const match = fillColor.match(/rgba?\(\d+,\s*\d+,\s*\d+,\s*([\d.]+)\)/);
+          if (match) opacity = parseFloat(match[1]);
+        } else if (fillColor.startsWith('#')) {
+          hex = fillColor;
+          opacity = 1;
         }
-      } else if (typeof fillColor === 'string' && fillColor.startsWith('#')) {
-        hex = fillColor;
       }
+
       setStyles(prev => ({
         ...prev,
         polygon: {
@@ -124,30 +114,68 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
         },
       }));
     }
-  
-  }, [layerKey, userLayers]);
-  
+  }, [feature]);
 
   const handleSave = () => {
-    const target = userLayers.find(layer => layer.filename === layerKey || `user-${layer.id}` === layerKey);
-    if (target) {
-      applyUserStyleToLayer(target.layer, styles);
+    const type = geometryType;
+    let style = null;
+
+    if (type === 'point') {
+      style = new Style({
+        image: new CircleStyle({
+          radius: styles.point.radius,
+          fill: new Fill({ color: styles.point.color }),
+          stroke: new Stroke({
+            color: styles.point.strokeColor,
+            width: styles.point.strokeWidth,
+          }),
+        }),
+      });
     }
-    //onSave(layerKey, styles);
+
+    if (type === 'line') {
+      style = new Style({
+        stroke: new Stroke({
+          color: styles.line.color,
+          width: styles.line.width,
+          lineDash: styles.line.dash.split(',').map(n => parseFloat(n)),
+          lineCap: styles.line.cap,
+        }),
+      });
+    }
+
+    if (type === 'polygon') {
+      const hex = styles.polygon.fillColor.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      const rgba = `rgba(${r},${g},${b},${styles.polygon.fillOpacity})`;
+
+      style = new Style({
+        stroke: new Stroke({
+          color: styles.polygon.strokeColor,
+          width: styles.polygon.strokeWidth,
+          lineDash: styles.polygon.strokeDash.split(',').map(n => parseFloat(n)),
+        }),
+        fill: new Fill({ color: rgba }),
+      });
+    }
+
+    feature._customStyle = style;
+    feature.setStyle(style);
     onClose();
   };
 
-
   return (
-    <ModalWindow title={`Stil Ayarları - ${targetLayer?.filename || layerKey}`} onClose={onClose}>
-      <div className="tabs">
-        <button onClick={() => setActiveTab('point')} className={activeTab === 'point' ? 'active' : ''}>Nokta</button>
-        <button onClick={() => setActiveTab('line')} className={activeTab === 'line' ? 'active' : ''}>Çizgi</button>
-        <button onClick={() => setActiveTab('polygon')} className={activeTab === 'polygon' ? 'active' : ''}>Alan</button>
-      </div>
+    <ModalWindow title="Stil Düzenleyici" onClose={onClose}>
+      <h2>
+        {geometryType === 'point' && 'Nokta Stili'}
+        {geometryType === 'line' && 'Çizgi Stili'}
+        {geometryType === 'polygon' && 'Alan Stili'}
+      </h2>
 
       <div className="tab-panel">
-        {activeTab === 'point' && (
+        {geometryType === 'point' && (
           <div>
             <label>Renk: <input type="color" value={styles.point.color} onChange={(e) => handleChange('point', 'color', e.target.value)} /></label>
             <label>Yarıçap: <input type="number" value={styles.point.radius} onChange={(e) => handleChange('point', 'radius', parseFloat(e.target.value))} /></label>
@@ -156,12 +184,11 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
           </div>
         )}
 
-        {activeTab === 'line' && (
+        {geometryType === 'line' && (
           <div>
             <label>Renk: <input type="color" value={styles.line.color} onChange={(e) => handleChange('line', 'color', e.target.value)} /></label>
             <label>Kalınlık: <input type="number" value={styles.line.width} onChange={(e) => handleChange('line', 'width', parseFloat(e.target.value))} /></label>
-            <label>Kesikli Çizgi (örn: 4,4): <input type="text" value={styles.line.dash} onChange={(e) => handleChange('line', 'dash', e.target.value)} /></label>
-            <label>Saydamlık: <input type="range" min="0" max="1" step="0.1" value={styles.line.opacity} onChange={(e) => handleChange('line', 'opacity', parseFloat(e.target.value))} /></label>
+            <label>Kesikli Çizgi: <input type="text" value={styles.line.dash} onChange={(e) => handleChange('line', 'dash', e.target.value)} /></label>
             <label>Uç Tipi:
               <select value={styles.line.cap} onChange={(e) => handleChange('line', 'cap', e.target.value)}>
                 <option value="round">Yuvarlak</option>
@@ -172,13 +199,13 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
           </div>
         )}
 
-        {activeTab === 'polygon' && (
+        {geometryType === 'polygon' && (
           <div>
             <label>Dolgu Rengi: <input type="color" value={styles.polygon.fillColor} onChange={(e) => handleChange('polygon', 'fillColor', e.target.value)} /></label>
             <label>Dolgu Saydamlığı: <input type="range" min="0" max="1" step="0.1" value={styles.polygon.fillOpacity} onChange={(e) => handleChange('polygon', 'fillOpacity', parseFloat(e.target.value))} /></label>
             <label>Kenarlık Rengi: <input type="color" value={styles.polygon.strokeColor} onChange={(e) => handleChange('polygon', 'strokeColor', e.target.value)} /></label>
             <label>Kenarlık Kalınlığı: <input type="number" value={styles.polygon.strokeWidth} onChange={(e) => handleChange('polygon', 'strokeWidth', parseFloat(e.target.value))} /></label>
-            <label>Kesikli Kenar (örn: 4,2): <input type="text" value={styles.polygon.strokeDash} onChange={(e) => handleChange('polygon', 'strokeDash', e.target.value)} /></label>
+            <label>Kesikli Kenar: <input type="text" value={styles.polygon.strokeDash} onChange={(e) => handleChange('polygon', 'strokeDash', e.target.value)} /></label>
           </div>
         )}
       </div>
@@ -191,4 +218,4 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
   );
 }
 
-export default StyleEditorModal;
+export default FeatureStyleEditorModal;
