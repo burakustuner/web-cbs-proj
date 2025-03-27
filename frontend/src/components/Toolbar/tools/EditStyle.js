@@ -21,7 +21,7 @@ function EditStyle({ map }) {
         id: 'feature-style-editor',
         title: 'Stil Düzenleyici',
         singleton: true,
-        component: (
+        render: () => (
           <FeatureStyleEditorModal
             feature={feature}
             onClose={() => {

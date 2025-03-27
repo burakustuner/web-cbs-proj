@@ -168,6 +168,7 @@ function FeatureStyleEditorModal({ feature, onClose }) {
 
   return (
     <ModalWindow id="feature-style-editor" title="Stil Düzenleyici" onClose={onClose}>
+
       <h2>
         {geometryType === 'point' && 'Nokta Stili'}
         {geometryType === 'line' && 'Çizgi Stili'}
