@@ -12,10 +12,13 @@ import { Fill, Stroke, Style, Circle as CircleStyle } from 'ol/style';
 import Overlay from 'ol/Overlay';
 import API_BASE_URL from './config';
 import { ModalManagerProvider } from './contexts/ModalManagerContext';
+import { ToolManagerProvider } from './contexts/ToolManagerContext';
+
 import LayerPanel from './components/LayerPanel/LayerPanel';
 import Toolbar from './components/Toolbar/Toolbar';
 import StyleEditorModal from './components/StyleEditor/StyleEditorModal';
 import { v4 as uuidv4 } from 'uuid';
+import ToolRenderer from './components/ModalManager/ToolRenderer';
 
 function App() {
   const mapRef = useRef();
@@ -265,7 +268,7 @@ function App() {
   };
 
   return (
-    <ModalManagerProvider>
+    <ToolManagerProvider>
       <Toolbar
         onImportKML={() => alert("KML import tıklandı")}
         onImportGeoJSON={handleGeoJSONImport}
@@ -302,7 +305,8 @@ function App() {
     userLayers={userLayers}
   />
 )}
-    </ModalManagerProvider>
+<ToolRenderer />
+    </ToolManagerProvider>
   );
 }
 

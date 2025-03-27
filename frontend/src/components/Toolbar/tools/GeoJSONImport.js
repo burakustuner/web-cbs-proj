@@ -15,7 +15,7 @@ const GeoJSONImport = ({ onImport }) => {
         data: geojson,
       });
 
-      alert("GeoJSON başarıyla yüklendi.");
+      //alert("GeoJSON başarıyla yüklendi.");
     } catch (error) {
       console.error("GeoJSON import hatası:", error);
       alert("Dosya yüklenemedi: " + error.message);

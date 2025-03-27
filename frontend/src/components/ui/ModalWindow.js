@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
 import './ModalWindow.css';
 
-function ModalWindow({ title, children, onClose }) {
+function ModalWindow({ id, title, children, onClose, zIndex = 1000 }) {
   const [minimized, setMinimized] = useState(false);
 
   return (
-    <div className="draggable-modal-backdrop">
+    <div className="draggable-modal-backdrop" style={{ zIndex }}>
       <Rnd
         default={{
           x: window.innerWidth / 2 - 200,
@@ -22,8 +22,10 @@ function ModalWindow({ title, children, onClose }) {
           <div className="draggable-modal-header">
             <span>{title}</span>
             <div className="modal-controls">
-              <button onClick={() => setMinimized(!minimized)}>{minimized ? '🗖' : '🗕'}</button>
-              <button onClick={onClose}>❌</button>
+              <button onClick={() => setMinimized(!minimized)}>
+                {minimized ? '🗖' : '🗕'}
+              </button>
+              <button onClick={() => onClose?.(id)}>❌</button>
             </div>
           </div>
 
@@ -37,5 +39,6 @@ function ModalWindow({ title, children, onClose }) {
     </div>
   );
 }
+
 
 export default ModalWindow;
