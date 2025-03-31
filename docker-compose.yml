@@ -13,15 +13,15 @@ services:
     ports:
       - "55432:5432"
 
-  backend:
-    build: ./backend
-    container_name: fastapi-backend
-    volumes:
-      - ./backend:/app
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
+  #backend:
+  #  build: ./backend
+  #  container_name: fastapi-backend
+  #  volumes:
+  #    - ./backend:/app
+  #  ports:
+  #    - "8000:8000"
+  #  depends_on:
+  #    - db
 
   backend-node:
     build: ./backend-node
