@@ -16,6 +16,12 @@ docker compose version
 Kullanıcını docker grubuna ekle:
 sudo usermod -aG docker $USER
 
+Bugs:
+katman silme çalışmıyor. fixed
+katman stil değiştirme çalışmıyor
+çizgi çiz aracı açıkken nokta çiz de açılabiliyor birbirine giriyor. fixed
+çizilen featurelar duplicate oluyor. edit geomtery yapınca farkedildi.
+
 
 
 tODO:

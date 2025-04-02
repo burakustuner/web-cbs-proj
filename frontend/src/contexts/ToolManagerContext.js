@@ -8,13 +8,20 @@ export const ToolManagerProvider = ({ children }) => {
   const [tools, setTools] = useState([]);
 
   const openTool = (toolConfig) => {
-    setTools((prev) => {
-      // Eğer singleton ise, aynı ID'deki eski tool'u kapat
-      if (toolConfig.singleton) {
-        const filtered = prev.filter(t => t.id !== toolConfig.id);
-        return [...filtered, toolConfig];
+    setTools((prevTools) => {
+      let newTools = [...prevTools];
+
+      // 💥 Singleton ve birlikte çalışamazsa, diğer singletonları kapat
+      if (toolConfig.singleton && !toolConfig.canWorkTogether) {
+        newTools = newTools.filter(t => !(t.singleton && !t.canWorkTogether));
       }
-      return [...prev, toolConfig];
+
+      // Aynı ID varsa eklemeyelim
+      if (!newTools.find(t => t.id === toolConfig.id)) {
+        newTools.push(toolConfig);
+      }
+
+      return newTools;
     });
   };
 
@@ -22,8 +29,12 @@ export const ToolManagerProvider = ({ children }) => {
     setTools((prev) => prev.filter(t => t.id !== id));
   };
 
+  const isToolActive = (id) => tools.some(t => t.id === id);
+
   return (
-    <ToolManagerContext.Provider value={{ tools, openTool, closeTool }}>
+    <ToolManagerContext.Provider
+      value={{ tools, openTool, closeTool, isToolActive }}
+    >
       {children}
     </ToolManagerContext.Provider>
   );

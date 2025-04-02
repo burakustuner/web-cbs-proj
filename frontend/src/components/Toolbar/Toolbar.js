@@ -3,6 +3,10 @@ import * as Toolbar from '@radix-ui/react-toolbar';
 import './Toolbar.css';
 import GeoJSONImport from './tools/GeoJSONImport';
 import EditStyle from './tools/EditStyle';
+import DrawPoint from './tools/DrawPoint';
+import DrawLine from './tools/DrawLine';
+import DrawPolygon from './tools/DrawPolygon';
+import EditGeometry from './tools/EditGeometry';
 
 function CustomToolbar({map, onImportKML, onImportGeoJSON }) {
   const [activeTool, setActiveTool] = useState(null);
@@ -50,8 +54,12 @@ function CustomToolbar({map, onImportKML, onImportGeoJSON }) {
 
         {activeTool === 'drawing' && (
           <>
+          <DrawPoint map={map} />
+          <DrawLine map={map} />
+          <DrawPolygon map={map} />
             <EditStyle map={map} />
-            <button onClick={() => alert("Geometri Düzenle")}>📄 Edit Geometry</button>
+            <EditGeometry map={map} />
+            
           </>
         )}
 

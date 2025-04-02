@@ -25,19 +25,19 @@ services:
 
   backend-node:
     build: ./backend-node
-    container_name: node-backend
+    container_name: backend-node
     ports:
       - "8001:8000"
     depends_on:
       - db
 
-  frontend:
-    build: ./frontend
-    container_name: react-frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
+#  frontend:
+#    build: ./frontend
+#    container_name: react-frontend
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - node-backend
   frontend-dev:
     build:
       context: ./frontend
@@ -51,7 +51,7 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     depends_on:
-      - backend
+      - backend-node
       
 volumes:
   pgdata:

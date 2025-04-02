@@ -1,7 +1,9 @@
+// src/components/Toolbar/tools/DrawPoint.js
 import React, { useState, useEffect, useRef } from 'react';
 import CheckboxTree from 'react-checkbox-tree';
 import 'react-checkbox-tree/lib/react-checkbox-tree.css';
 import 'font-awesome/css/font-awesome.css';
+import { useUserLayers } from '../../contexts/UserLayersContext';
 
 function LayerPanel({
   systemLayers = {},
@@ -9,20 +11,25 @@ function LayerPanel({
   setVisibleLayers = () => {},
   onZoom,
   onOpacityChange,
-  onBringToFront,
-  onChangeStyle,
   onRenameLayer,
-  onRemoveLayer,
-  userLayers = [],
-  setUserLayers = () => {},
   onOpenStyleEditor
 }) {
+  const {
+    userLayers,
+    activeLayerId,
+    setActiveLayerId,
+    addLayer,
+    removeLayer,
+    zoomToLayer
+  } = useUserLayers();// 🎯 Artık context'ten alınıyor
+
   const [expanded, setExpanded] = useState(['exampleGroup', 'systemLayers', 'userLayers']);
   const [checked, setChecked] = useState([]);
   const [contextMenu, setContextMenu] = useState(null);
   const [minimized, setMinimized] = useState(false);
   const prevUserLayerIds = useRef([]);
 
+  // Yeni katman eklendiğinde otomatik görünür yap
   useEffect(() => {
     const newIds = userLayers
       .map(layer => `user-${layer.id}`)
@@ -33,6 +40,7 @@ function LayerPanel({
     prevUserLayerIds.current = userLayers.map(l => `user-${l.id}`);
   }, [userLayers]);
 
+  // Sistem katmanları görünürlük kontrolü
   useEffect(() => {
     const systemChecked = Object.keys(systemLayers).filter(key => visibleLayers[key]);
     const userChecked = checked.filter(id => id.startsWith('user-'));
@@ -45,12 +53,15 @@ function LayerPanel({
 
   const handleCheck = (checkedNodes) => {
     setChecked(checkedNodes);
+
+    // Sistem katmanlarını görünürlükle eşle
     const newVisible = {};
     Object.keys(systemLayers).forEach(key => {
       newVisible[key] = checkedNodes.includes(key);
     });
     setVisibleLayers(newVisible);
 
+    // Kullanıcı katmanlarının görünürlüğünü ayarla
     userLayers.forEach(layerObj => {
       const value = `user-${layerObj.id}`;
       layerObj.layer.setVisible(checkedNodes.includes(value));
@@ -64,36 +75,68 @@ function LayerPanel({
 
   const closeContextMenu = () => setContextMenu(null);
 
-  const renderLabel = (key, name) => (
-    <span onContextMenu={(e) => handleRightClick(e, key)}>
-      {name}
-      <button onClick={() => onZoom(key)} style={{ marginLeft: '5px' }}>🔍</button>
-      <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.05"
-        defaultValue="1"
-        onChange={(e) => onOpacityChange(key, parseFloat(e.target.value))}
-        style={{ marginLeft: '8px', width: '70px' }}
-        title="Opaklık Ayarı"
-      />
-    </span>
-  );
-
+  const renderLabel = (key, name) => {
+    const isUserLayer = key.startsWith("user-");
+    const id = isUserLayer ? key.replace("user-", "") : null;
+    const isActive = activeLayerId === id;
+  
+    return (
+      <span onContextMenu={(e) => handleRightClick(e, key)}>
+        {name}
+        {isUserLayer && isActive && (
+          <strong style={{ color: 'green' }}> (aktif)</strong>
+        )}
+        <button
+  onClick={() => {
+    if (isUserLayer) {
+      zoomToLayer(id); // context'teki fonksiyon
+    } else {
+      onZoom(key); // sistem katmanları için eski fonksiyon
+    }
+  }}
+  style={{ marginLeft: '5px' }}
+>
+  🔍
+</button>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          defaultValue="1"
+          onChange={(e) => onOpacityChange(key, parseFloat(e.target.value))}
+          style={{ marginLeft: '8px', width: '70px' }}
+          title="Opaklık Ayarı"
+        />
+        {/* ⭐ sadece kullanıcı katmanları için */}
+        {isUserLayer && (
+          <button
+            onClick={() => setActiveLayerId(id)}
+            style={{ marginLeft: '6px' }}
+            title="Bu katmanı aktif yap"
+          >
+            ⭐
+          </button>
+        )}
+      </span>
+    );
+  };
+  
   const systemLayerNodes = Object.entries(systemLayers).map(([key, layerObj]) => ({
     value: key,
     label: renderLabel(key, key.charAt(0).toUpperCase() + key.slice(1))
   }));
 
-  const userLayerNodes = userLayers.length > 0 ? userLayers.map((layerObj) => ({
-    value: `user-${layerObj.id}`,
-    label: renderLabel(`user-${layerObj.id}`, layerObj.filename)
-  })) : [{
-    value: 'noData',
-    label: <span style={{ fontStyle: 'italic', color: '#888' }}>(Henüz veri yok)</span>,
-    disabled: true,
-  }];
+  const userLayerNodes = userLayers.length > 0
+    ? userLayers.map((layerObj) => ({
+        value: `user-${layerObj.id}`,
+        label: renderLabel(`user-${layerObj.id}`, layerObj.filename)
+      }))
+    : [{
+        value: 'noData',
+        label: <span style={{ fontStyle: 'italic', color: '#888' }}>(Henüz veri yok)</span>,
+        disabled: true,
+      }];
 
   const nodes = [
     {
@@ -109,13 +152,18 @@ function LayerPanel({
     },
     {
       value: 'userLayers',
-      label: '📂 Kullanıcı Tabakaları',
+      label: (
+        <span onContextMenu={(e) => handleRightClick(e, 'userLayers')}>
+          📂 Kullanıcı Tabakaları
+        </span>
+      ),
       children: userLayerNodes
     }
   ];
 
   return (
     <>
+      {/* Minimize / Genişlet düğmesi */}
       <button
         onClick={() => setMinimized(!minimized)}
         style={{
@@ -174,6 +222,7 @@ function LayerPanel({
         </div>
       )}
 
+      {/* Sağ tıklama menüsü */}
       {contextMenu && (
         <ul
           style={{
@@ -192,15 +241,26 @@ function LayerPanel({
           }}
           onMouseLeave={closeContextMenu}
         >
-          <li onClick={() => { onBringToFront(contextMenu.layerKey); closeContextMenu(); }} style={menuStyle}>📤 Öne Getir</li>
-          <li onClick={() => { onOpacityChange(contextMenu.layerKey, 1); closeContextMenu(); }} style={menuStyle}>💧 Opaklığı Sıfırla</li>
+            <li
+    onClick={() => {
+      const name = prompt("Yeni katman adı:");
+      if (name && name.trim()) {
+        addLayer(name.trim());
+      }
+      closeContextMenu();
+    }}
+    style={menuStyle}
+  >
+    ➕ Yeni Katman Ekle
+  </li>
+
           <li onClick={() => { onOpenStyleEditor(contextMenu.layerKey); closeContextMenu(); }} style={menuStyle}>🎨 Stil Değiştir</li>
 
           <li
             onClick={() => {
               const newName = prompt("Yeni katman adı:");
               if (!newName || newName.trim() === '') return;
-              if (newName) onRenameLayer(contextMenu.layerKey, newName);
+              onRenameLayer(contextMenu.layerKey, newName);
               closeContextMenu();
             }}
             style={menuStyle}
@@ -208,7 +268,21 @@ function LayerPanel({
             📝 İsim Değiştir
           </li>
 
-          <li onClick={() => { onRemoveLayer(contextMenu.layerKey); closeContextMenu(); }} style={{ ...menuStyle, color: 'red' }}>🗑️ Katmanı Kaldır</li>
+          <li
+  onClick={() => {
+    const key = contextMenu.layerKey;
+
+    if (key.startsWith("user-")) {
+      const id = key.replace("user-", "");
+      removeLayer(id); // context'teki fonksiyonu çağır
+    }
+
+    closeContextMenu();
+  }}
+  style={{ ...menuStyle, color: 'red' }}
+>
+  🗑️ Katmanı Kaldır
+</li>
         </ul>
       )}
     </>

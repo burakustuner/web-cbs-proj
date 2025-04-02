@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+// src/components/Toolbar/tools/EditStyle.js
+import React, { useEffect, useState } from 'react';
 import FeatureStyleEditorModal from '../../StyleEditor/FeatureStyleEditorModal';
 import { unByKey } from 'ol/Observable';
 import { useToolManager } from '../../../contexts/ToolManagerContext';
 
 function EditStyle({ map }) {
-  const [active, setActive] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(null);
-  const { openTool, closeTool } = useToolManager();
+  const { openTool, closeTool, isToolActive } = useToolManager();
+
+  const active = isToolActive('edit-style');
 
   useEffect(() => {
     if (!map || !active) return;
@@ -21,6 +23,7 @@ function EditStyle({ map }) {
         id: 'feature-style-editor',
         title: 'Stil Düzenleyici',
         singleton: true,
+        canWorkTogether: false,
         render: () => (
           <FeatureStyleEditorModal
             feature={feature}
@@ -40,7 +43,22 @@ function EditStyle({ map }) {
 
   return (
     <div style={{ padding: "5px" }}>
-      <button className="toolbar-button" onClick={() => setActive(!active)}>
+      <button
+        className="toolbar-button"
+        onClick={() => {
+          if (active) {
+            closeTool('edit-style');
+          } else {
+            openTool({
+              id: 'edit-style',
+              title: 'Stil Değiştirici Etkinleştirici',
+              singleton: true,
+              canWorkTogether: false,
+              render: () => <EditStyle map={map} /> // Kendisini yeniden render ediyor
+            });
+          }
+        }}
+      >
         {active ? "✔️ Obje Seçimi Açık" : "🌈 Stil Değiştir (Objeye)"}
       </button>
     </div>

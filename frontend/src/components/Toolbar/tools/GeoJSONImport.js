@@ -1,7 +1,12 @@
 import React from "react";
 import { convertToGeoJSON } from "../../../utils/convertToGeoJSON";
+import { useUserLayers } from "../../../contexts/UserLayersContext";
+import GeoJSON from "ol/format/GeoJSON";
+import { Vector as VectorSource } from "ol/source";
 
-const GeoJSONImport = ({ onImport }) => {
+const GeoJSONImport = () => {
+  const { addLayer } = useUserLayers();
+
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -9,13 +14,15 @@ const GeoJSONImport = ({ onImport }) => {
     try {
       const geojson = await convertToGeoJSON(file);
 
-      // Dosya adı ve veriyi dışarı gönderiyoruz
-      onImport({
-        filename: file.name,
-        data: geojson,
+      const source = new VectorSource({
+        features: new GeoJSON().readFeatures(geojson, {
+          featureProjection: "EPSG:3857",
+        }),
       });
 
-      //alert("GeoJSON başarıyla yüklendi.");
+      // Yeni katman olarak ekle
+      addLayer(file.name.replace(/\.(geo)?json$/, ""), source);
+
     } catch (error) {
       console.error("GeoJSON import hatası:", error);
       alert("Dosya yüklenemedi: " + error.message);
