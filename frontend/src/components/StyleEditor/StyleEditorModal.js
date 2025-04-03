@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './StyleEditorModal.css';
 import { applyUserStyleToLayer } from '../../layers/UserLayers';
 import ModalWindow from '../ui/ModalWindow';
+import { useUserLayers } from '../../contexts/UserLayersContext';
 
 function rgbaToHex(rgba) {
   const parts = rgba.match(/rgba?\((\d+), ?(\d+), ?(\d+),? ?([\d.]*)?\)/);
@@ -13,7 +14,8 @@ function rgbaToHex(rgba) {
   return `#${r}${g}${b}`;
 }
 
-function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
+function StyleEditorModal({ layerKey, onClose, onSave }) {
+  const { userLayers } = useUserLayers();
   const [activeTab, setActiveTab] = useState('point');
   
   const [styles, setStyles] = useState({
@@ -49,20 +51,35 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
     }));
   };
   const [targetLayer, setTargetLayer] = useState(null);
+  const normalizedKey = layerKey?.startsWith('user-') ? layerKey.replace('user-', '') : layerKey;
   useEffect(() => {
-    const target = userLayers.find(layer => layer.filename === layerKey || `user-${layer.id}` === layerKey);
-    if (!target) return;
+    console.log('🧪 Gelen layerKey:', layerKey);
+    console.log('🧪 Kullanılabilir layer id’leri:', userLayers.map(l => l.id));
+    
+    const target = userLayers.find(layer =>
+      layer.id === normalizedKey || layer.filename === normalizedKey
+    );
   
+    if (!target) {
+      console.warn('❌ Stil editor: Hedef katman bulunamadı:', layerKey);
+      return;
+    }
+    console.log('✅ Stil editor: Hedef katman bulundu:', target.filename || target.id);
     setTargetLayer(target); // 👈 bunu ekledik
 
     const features = target.layer.getSource().getFeatures();
+    console.log('📦 Katmandaki feature sayısı:', features.length);
     const getFeatureByType = (type) => features.find(f => f.getGeometry().getType() === type);
   
     const styleFunc = target.layer.getStyle();
-  
+    if (!styleFunc) {
+      console.warn('⚠️ Katmanda stil fonksiyonu yok!');
+      return;
+    }
     // Nokta
     const pointFeature = getFeatureByType('Point') || getFeatureByType('MultiPoint');
     if (pointFeature && styleFunc) {
+      console.log('🟢 Nokta tipi bulundu:', pointFeature.getId());
       const style = styleFunc(pointFeature);
       const image = style.getImage();
       setStyles(prev => ({
@@ -79,6 +96,7 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
     // Çizgi
     const lineFeature = getFeatureByType('LineString') || getFeatureByType('MultiLineString');
     if (lineFeature && styleFunc) {
+      console.log('🔵 Çizgi tipi bulundu:', lineFeature.getId());
       const style = styleFunc(lineFeature);
       const stroke = style.getStroke();
       setStyles(prev => ({
@@ -96,6 +114,7 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
     // Poligon
     const polygonFeature = getFeatureByType('Polygon') || getFeatureByType('MultiPolygon');
     if (polygonFeature && styleFunc) {
+      console.log('🟣 Poligon tipi bulundu:', polygonFeature.getId());
       const style = styleFunc(polygonFeature);
       const stroke = style.getStroke();
       const fill = style.getFill();
@@ -129,9 +148,16 @@ function StyleEditorModal({ layerKey, onClose, onSave, userLayers }) {
   
 
   const handleSave = () => {
-    const target = userLayers.find(layer => layer.filename === layerKey || `user-${layer.id}` === layerKey);
+    
+    const target = userLayers.find(layer =>
+      layer.filename === layerKey ||
+      `user-${layer.id}` === layerKey ||
+      layer.id === layerKey // 👈 ekstra kontrol
+    );
     if (target) {
+      console.log('💾 Stil kaydediliyor:', styles);
       applyUserStyleToLayer(target.layer, styles);
+      console.log('✅ Stil uygulandı. 🎨');
     }
     //onSave(layerKey, styles);
     onClose();

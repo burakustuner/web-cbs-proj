@@ -11,9 +11,11 @@ function EditStyle({ map }) {
   const active = isToolActive('edit-style');
 
   useEffect(() => {
+    console.log('🧩 EditStyle useEffect çalıştı', { map, active }); // <-- EKLE
     if (!map || !active) return;
 
     const clickHandler = map.on('click', (evt) => {
+      console.log('🖱️ Haritaya tıklandı'); // <-- BU GELMİYORSA sorun burda
       const feature = map.forEachFeatureAtPixel(evt.pixel, (feat) => feat);
       if (!feature || feature === selectedFeature) return;
 
@@ -37,6 +39,7 @@ function EditStyle({ map }) {
     });
 
     return () => {
+      console.log('🧹 EditStyle temizlendi');
       unByKey(clickHandler);
     };
   }, [map, active, selectedFeature, openTool, closeTool]);
@@ -51,10 +54,10 @@ function EditStyle({ map }) {
           } else {
             openTool({
               id: 'edit-style',
-              title: 'Stil Değiştirici Etkinleştirici',
+              title: 'Obje Stil Aracı',
               singleton: true,
               canWorkTogether: false,
-              render: () => <EditStyle map={map} /> // Kendisini yeniden render ediyor
+              render: () => null  // <-- artık bileşeni çağırmıyoruz!
             });
           }
         }}

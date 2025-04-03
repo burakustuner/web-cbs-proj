@@ -3,6 +3,7 @@ import { Draw } from 'ol/interaction';
 import { unByKey } from 'ol/Observable';
 import { useUserLayers } from '../../../contexts/UserLayersContext';
 import { useToolManager } from '../../../contexts/ToolManagerContext';
+import { generateSmartFeatureId } from '../../../utils/generateSmartFeatureId';
 
 function DrawLine({ map }) {
   const { addFeatureToActiveLayer } = useUserLayers();
@@ -18,9 +19,13 @@ function DrawLine({ map }) {
 
     map.addInteraction(draw);
 
-    const listener = draw.on('drawend', (event) => {
-      addFeatureToActiveLayer(event.feature);
-    });
+         const listener = draw.on('drawend', (event) => {
+          const feature = event.feature;
+          feature.setId(generateSmartFeatureId(feature));
+          addFeatureToActiveLayer(feature);
+        });
+
+
 
     return () => {
       map.removeInteraction(draw);
@@ -44,6 +49,8 @@ function DrawLine({ map }) {
               singleton: true,
               canWorkTogether: false,
               render: () => <DrawLine map={map} />
+              //component: DrawLine, // ✅ sadece aktifse render edilir
+              //props: { map },       // ✅ isteğe bağlı prop'lar
             });
           }
         }}

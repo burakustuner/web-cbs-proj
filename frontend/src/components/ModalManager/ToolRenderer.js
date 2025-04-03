@@ -1,15 +1,20 @@
+// src/components/ToolRenderer.js
 import React from "react";
 import { useToolManager } from "../../contexts/ToolManagerContext";
-import ModalWindow from "../ui/ModalWindow";
+
 const ToolRenderer = () => {
-  const { tools, closeTool } = useToolManager();
+  const { tools } = useToolManager();
 
   return (
     <>
-      {tools.map((tool) => tool.render())}
+      {tools.map((tool) => {
+        const Component = tool.component;
+        return Component ? (
+          <Component key={tool.id} {...(tool.props || {})} />
+        ) : null;
+      })}
     </>
   );
-
 };
 
 export default ToolRenderer;

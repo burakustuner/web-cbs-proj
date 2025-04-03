@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { Vector as VectorLayer } from 'ol/layer';
 import { Vector as VectorSource } from 'ol/source';
+import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
 
 const UserLayersContext = createContext();
 
@@ -9,9 +10,43 @@ export function UserLayersProvider({ children, map }) {
   const [userLayers, setUserLayers] = useState([]);
   const [activeLayerId, setActiveLayerId] = useState(null);
 
+    // 🎨 Varsayılan stil fonksiyonu
+    const getDefaultStyleFunction = () => {
+      return (feature) => {
+        const type = feature.getGeometry().getType();
+
+        if (type === 'Point' || type === 'MultiPoint') {
+          return new Style({
+            image: new CircleStyle({
+              radius: 6,
+              fill: new Fill({ color: '#ff0000' }),
+              stroke: new Stroke({ color: '#ffffff', width: 1 }),
+            }),
+          });
+        }
+
+        if (type === 'LineString' || type === 'MultiLineString') {
+          return new Style({
+            stroke: new Stroke({ color: '#0000ff', width: 2 }),
+          });
+        }
+
+        if (type === 'Polygon' || type === 'MultiPolygon') {
+          return new Style({
+            fill: new Fill({ color: 'rgba(0,255,0,0.3)' }),
+            stroke: new Stroke({ color: '#00ff00', width: 2 }),
+          });
+        }
+
+        return null;
+      };
+    };
   const createDefaultLayer = () => {
     const source = new VectorSource();
-    const layer = new VectorLayer({ source });
+    const layer = new VectorLayer({
+      source,
+      style: getDefaultStyleFunction(),
+    });
     map?.addLayer(layer);
     const defaultLayer = {
       id: 'default',
@@ -37,14 +72,17 @@ export function UserLayersProvider({ children, map }) {
     if (!layer) {
       layer = createDefaultLayer();
     }
-
+    feature.setStyle(null); // ✅ Layer stilini kullansın
     layer.source.addFeature(feature);
   };
 
   const addLayer = (name, externalSource = null) => {
     const id = `layer-${Date.now()}`;
     const source = externalSource || new VectorSource();
-    const layer = new VectorLayer({ source });
+    const layer = new VectorLayer({
+      source,
+      style: getDefaultStyleFunction(), // 🎯 Katman kendi stiline sahip
+    });
   
     map?.addLayer(layer);
   

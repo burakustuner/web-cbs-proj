@@ -36,6 +36,13 @@ export const ToolManagerProvider = ({ children }) => {
       value={{ tools, openTool, closeTool, isToolActive }}
     >
       {children}
+            {/* 👇 Aktif araçların bileşenlerini render et */}
+            {tools.map((tool) => {
+        const Component = tool.component;
+        return Component ? (
+          <Component key={tool.id} {...(tool.props || {})} />
+        ) : null;
+      })}
     </ToolManagerContext.Provider>
   );
 };

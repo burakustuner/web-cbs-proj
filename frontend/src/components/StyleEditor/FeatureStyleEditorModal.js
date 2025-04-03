@@ -49,16 +49,28 @@ function FeatureStyleEditorModal({ feature, onClose }) {
   };
 
   useEffect(() => {
+    console.log('🧪 FeatureStyleEditorModal açıldı');
+    if (!feature) {
+      console.warn('❌ Feature yok!');
+      return;
+    }
+
     const geomType = feature.getGeometry().getType();
+    console.log('🔍 Geometri tipi:', geomType);
+
     if (geomType.includes('Point')) setGeometryType('point');
     else if (geomType.includes('LineString')) setGeometryType('line');
     else if (geomType.includes('Polygon')) setGeometryType('polygon');
 
     const style = feature.getStyle?.() || feature._customStyle;
-    if (!style) return;
+    if (!style) {
+      console.warn('⚠️ Feature’ın stili bulunamadı');
+      return;
+    }
 
     if (geomType.includes('Point')) {
       const image = style.getImage?.();
+      console.log('🎯 Point stil detayları:', image);
       setStyles(prev => ({
         ...prev,
         point: {
@@ -72,6 +84,7 @@ function FeatureStyleEditorModal({ feature, onClose }) {
 
     if (geomType.includes('LineString')) {
       const stroke = style.getStroke?.();
+      console.log('🎯 Line stil detayları:', stroke);
       setStyles(prev => ({
         ...prev,
         line: {
@@ -88,7 +101,7 @@ function FeatureStyleEditorModal({ feature, onClose }) {
       const stroke = style.getStroke?.();
       const fill = style.getFill?.();
       const fillColor = fill?.getColor();
-
+      console.log('🎯 Polygon stil detayları - stroke:', stroke, 'fill:', fill);
       let hex = '#00ff00';
       let opacity = 0.3;
 
@@ -117,6 +130,7 @@ function FeatureStyleEditorModal({ feature, onClose }) {
   }, [feature]);
 
   const handleSave = () => {
+    console.log('💾 Stil kaydediliyor:', styles);
     const type = geometryType;
     let style = null;
 
@@ -163,6 +177,7 @@ function FeatureStyleEditorModal({ feature, onClose }) {
 
     feature._customStyle = style;
     feature.setStyle(style);
+    console.log('✅ Yeni stil uygulandı!');
     onClose();
   };
 

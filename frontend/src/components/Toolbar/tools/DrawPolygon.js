@@ -4,6 +4,7 @@ import { Draw } from 'ol/interaction';
 import { unByKey } from 'ol/Observable';
 import { useUserLayers } from '../../../contexts/UserLayersContext';
 import { useToolManager } from '../../../contexts/ToolManagerContext';
+import { generateSmartFeatureId } from '../../../utils/generateSmartFeatureId';
 
 function DrawPolygon({ map }) {
   const { addFeatureToActiveLayer } = useUserLayers();
@@ -22,9 +23,10 @@ function DrawPolygon({ map }) {
     map.addInteraction(draw);
 
     const listener = draw.on('drawend', (event) => {
-      addFeatureToActiveLayer(event.feature);
+      const feature = event.feature;
+      feature.setId(generateSmartFeatureId(feature));
+      addFeatureToActiveLayer(feature);
     });
-
     return () => {
       map.removeInteraction(draw);
       unByKey(listener);
@@ -44,6 +46,8 @@ function DrawPolygon({ map }) {
               title: 'Alan Çiz',
               singleton: true,
               canWorkTogether: false,
+              //component: DrawPolygon, // ✅ sadece aktifse render edilir
+              //props: { map },       // ✅ isteğe bağlı prop'lar
               render: () => <DrawPolygon map={map} />
             });
           }

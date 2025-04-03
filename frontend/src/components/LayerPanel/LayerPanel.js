@@ -254,7 +254,21 @@ function LayerPanel({
     ➕ Yeni Katman Ekle
   </li>
 
-          <li onClick={() => { onOpenStyleEditor(contextMenu.layerKey); closeContextMenu(); }} style={menuStyle}>🎨 Stil Değiştir</li>
+  <li
+  onClick={() => {
+    const key = contextMenu.layerKey;
+    console.log('🎨 Stil Değiştir: gelen key:', key);
+
+    let id = key.startsWith('user-') ? key.replace('user-', '') : key;
+    console.log('🔍 Stil editor için kullanılacak id:', id);
+
+    onOpenStyleEditor(id); // sadece id gönder
+    closeContextMenu();
+  }}
+  style={menuStyle}
+>
+  🎨 Stil Değiştir
+</li>
 
           <li
             onClick={() => {

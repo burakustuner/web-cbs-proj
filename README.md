@@ -18,10 +18,26 @@ sudo usermod -aG docker $USER
 
 Bugs:
 katman silme çalışmıyor. fixed
-katman stil değiştirme çalışmıyor
+katman stil değiştirme çalışmıyor fixed
 çizgi çiz aracı açıkken nokta çiz de açılabiliyor birbirine giriyor. fixed
-çizilen featurelar duplicate oluyor. edit geomtery yapınca farkedildi.
+çizilen featurelar duplicate oluyor. edit geomtery yapınca farkedildi. fixed
 
+feature stil değiştirme aracı çalışmıyor.
+nokta objesi olustururken aktif katmana değil hiçbir katmana ait olmayan objeler olusturabşiliyor.
+katman ismi değiştirme çaılışmıyor
+
+
+
+
+💾 Eğer ilerde:
+
+    Tool bileşenlerinin yerleşimini özelleştirmek,
+
+    ToolManager'dan tool’ları daha net kontrol etmek,
+
+    Her tool’un ayrı bir modal/panel olmasını istiyorsan
+
+o zaman component + props sistemine geri dönmeyi düşünebilirsin. Şimdilik render: () => <Comp /> yeterli ve kararlı çalışıyor.
 
 
 tODO:

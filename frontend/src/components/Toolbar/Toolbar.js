@@ -7,6 +7,7 @@ import DrawPoint from './tools/DrawPoint';
 import DrawLine from './tools/DrawLine';
 import DrawPolygon from './tools/DrawPolygon';
 import EditGeometry from './tools/EditGeometry';
+import DeleteFeatures from './tools/DeleteFeatures';
 
 function CustomToolbar({map, onImportKML, onImportGeoJSON }) {
   const [activeTool, setActiveTool] = useState(null);
@@ -59,6 +60,7 @@ function CustomToolbar({map, onImportKML, onImportGeoJSON }) {
           <DrawPolygon map={map} />
             <EditStyle map={map} />
             <EditGeometry map={map} />
+            <DeleteFeatures map={map} />
             
           </>
         )}
