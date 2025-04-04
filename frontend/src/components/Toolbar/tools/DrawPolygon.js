@@ -43,7 +43,7 @@ function DrawPolygon({ map }) {
           } else {
             openTool({
               id: 'draw-polygon',
-              title: 'Alan Çiz',
+              title: 'New Polygon',
               singleton: true,
               canWorkTogether: false,
               //component: DrawPolygon, // ✅ sadece aktifse render edilir
@@ -53,7 +53,7 @@ function DrawPolygon({ map }) {
           }
         }}
       >
-        {active ? '✔️ Alan Çiziliyor' : '📐 Alan Çiz'}
+        {active ? '✔️ Drawing Polygon' : '📍 New Polygon'}
       </button>
     </div>
   );

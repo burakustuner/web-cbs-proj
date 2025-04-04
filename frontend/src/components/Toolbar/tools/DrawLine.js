@@ -45,10 +45,9 @@ function DrawLine({ map }) {
             // singleton: true ve canWorkTogether: false olduğu için diğer singleton araçları kapatacak
             openTool({
               id: 'draw-line',
-              title: 'Çizgi Çiz',
+              title: 'New Line',
               singleton: true,
               canWorkTogether: false,
-              
               render: () => <DrawLine map={map} />
               //component: DrawLine, // ✅ sadece aktifse render edilir
               //props: { map },       // ✅ isteğe bağlı prop'lar
@@ -56,7 +55,8 @@ function DrawLine({ map }) {
           }
         }}
       >
-        {isToolActive('draw-line') ? '✔️ Çizgi Çiziliyor' : '📏 Çizgi Çiz'}
+        {isToolActive('draw-line') ? '✔️ Drawing Line' : '📏 New Line'}
+
       </button>
     </div>
   );

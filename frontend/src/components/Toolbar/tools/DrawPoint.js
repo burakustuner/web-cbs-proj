@@ -46,7 +46,7 @@ function DrawPoint({ map }) {
           } else {
             openTool({
               id: 'draw-point',
-              title: 'Nokta Çiz',
+              title: 'New Point',
               singleton: true,
               canWorkTogether: false,
               render: () => <DrawPoint map={map} />,
@@ -57,7 +57,7 @@ function DrawPoint({ map }) {
           }
         }}
       >
-        {active ? '✔️ Nokta Çiziliyor' : '📍 Nokta Çiz'}
+        {active ? '✔️ Drawing Point' : '📍 New Point'}
       </button>
     </div>
   );

@@ -29,21 +29,21 @@
             className="toolbar-button"
             onClick={() => setActiveTool(activeTool === 'import' ? null : 'import')}
           >
-            📂 Veri Import
+            📂 Data Import
           </Toolbar.Button>
 
           <Toolbar.Button
             className="toolbar-button"
             onClick={() => setActiveTool(activeTool === 'export' ? null : 'export')}
           >
-            📤 Veri Export
+            📤 Data Export
           </Toolbar.Button>
 
           <Toolbar.Button
             className="toolbar-button"
             onClick={() => setActiveTool(activeTool === 'print' ? null : 'print')}
           >
-            🖨️ Çıktı Al
+            🖨️ Print
           </Toolbar.Button>
         </Toolbar.Root>
 

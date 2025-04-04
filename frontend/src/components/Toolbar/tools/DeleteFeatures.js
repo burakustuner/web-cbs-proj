@@ -179,7 +179,7 @@ function DeleteFeatures({ map }) {
     } else {
       openTool({
         id: 'delete-features',
-        title: 'Özellik Silme',
+        title: 'Delete',
         singleton: true,
         canWorkTogether: false,
         render: () => <DeleteFeatures map={map} />
@@ -190,14 +190,14 @@ function DeleteFeatures({ map }) {
   return (
     <div style={{ padding: "5px" }}>
       <button className="toolbar-button" onClick={handleClick}>
-        {isToolActive('delete-features') ? '🗑️ Silme Aktif' : '🗑️ Özellik Sil'}
+        {isToolActive('delete-features') ? '🗑️ Deletion Active' : '🗑️ Delete'}
       </button>
 
       {isToolActive('delete-features') && (
         <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <button onClick={() => setMode('single')}>🖱️ Tekli Sil</button>
-          <button onClick={() => setMode('area')}>🟪 Alanla Sil</button>
-          <button onClick={() => setMode('all')}>🧹 Tümünü Sil</button>
+          <button onClick={() => setMode('single')}>🖱️ Delete Selection</button>
+          <button onClick={() => setMode('area')}>🟪 Delete by Area</button>
+          <button onClick={() => setMode('all')}>🧹 Delete All</button>
         </div>
       )}
     </div>
