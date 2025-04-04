@@ -1,0 +1,97 @@
+import React, { useState } from 'react';
+import { useUserLayers } from '../../../contexts/UserLayersContext';
+import GeoJSON from 'ol/format/GeoJSON';
+
+function ExportGeoJSON() {
+  const { userLayers } = useUserLayers();
+  const [expanded, setExpanded] = useState(false); // 👈 açılır/kapanır kontrolü
+
+  const exportGeoJSON = (layer) => {
+    const features = layer.source.getFeatures();
+    if (!features.length) return alert('Katmanda hiç obje yok.');
+
+    const geojson = new GeoJSON().writeFeaturesObject(features, {
+      featureProjection: 'EPSG:3857',
+    });
+
+    const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${layer.filename || 'export'}.geojson`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportAllVisibleLayers = () => {
+    let allFeatures = [];
+  
+    userLayers.forEach(layer => {
+      if (!layer.layer?.getVisible?.()) return;
+  
+      const features = layer.source.getFeatures();
+      if (!features.length) return;
+  
+      allFeatures = allFeatures.concat(features);
+    });
+  
+    if (!allFeatures.length) {
+      alert('Hiçbir görünür katmanda obje yok.');
+      return;
+    }
+  
+    const geojson = new GeoJSON().writeFeaturesObject(allFeatures, {
+      featureProjection: 'EPSG:3857',
+    });
+  
+    const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+  
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tum-katmanlar.geojson';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div style={{
+      background: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+      padding: '8px',
+      minWidth: '200px'
+    }}>
+      <button
+        className="toolbar-button"
+        onClick={() => setExpanded(!expanded)}
+        style={{ width: '100%', justifyContent: 'space-between', display: 'flex' }}
+      >
+        <span>📤 GeoJSON Dışa Aktar</span>
+        <span>{expanded ? '▲' : '▼'}</span>
+      </button>
+
+      {expanded && (
+        <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <button className="toolbar-button" onClick={exportAllVisibleLayers}>
+            💾 Tüm Görünür Öğeleri Kaydet
+          </button>
+
+          <hr />
+
+          {userLayers.length === 0 && <p style={{ fontStyle: 'italic', color: '#888' }}>Hiç katman yok.</p>}
+
+          {userLayers.map((layer) => (
+            <div key={layer.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.9em' }}>{layer.filename || layer.id}</span>
+              <button className="toolbar-button" onClick={() => exportGeoJSON(layer)}>💾</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ExportGeoJSON;

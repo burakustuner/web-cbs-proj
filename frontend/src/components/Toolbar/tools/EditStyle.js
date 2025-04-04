@@ -18,7 +18,7 @@ function EditStyle({ map }) {
       console.log('🖱️ Haritaya tıklandı'); // <-- BU GELMİYORSA sorun burda
       const feature = map.forEachFeatureAtPixel(evt.pixel, (feat) => feat);
       if (!feature || feature === selectedFeature) return;
-
+      console.log('🧩 Seçilen Feature:', feature);
       setSelectedFeature(feature);
 
       openTool({

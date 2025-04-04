@@ -48,6 +48,7 @@ function DrawLine({ map }) {
               title: 'Çizgi Çiz',
               singleton: true,
               canWorkTogether: false,
+              
               render: () => <DrawLine map={map} />
               //component: DrawLine, // ✅ sadece aktifse render edilir
               //props: { map },       // ✅ isteğe bağlı prop'lar

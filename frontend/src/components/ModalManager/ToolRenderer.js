@@ -8,6 +8,7 @@ const ToolRenderer = () => {
   return (
     <>
       {tools.map((tool) => {
+        console.log('🧩 render edilen tool:', tool.id);
         const Component = tool.component;
         return Component ? (
           <Component key={tool.id} {...(tool.props || {})} />
@@ -18,3 +19,4 @@ const ToolRenderer = () => {
 };
 
 export default ToolRenderer;
+

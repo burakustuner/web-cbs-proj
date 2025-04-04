@@ -13,6 +13,7 @@ function rgbaToHex(rgba) {
 }
 
 function FeatureStyleEditorModal({ feature, onClose }) {
+    console.log('🧪 FeatureStyleEditorModal açıldı');
   const [geometryType, setGeometryType] = useState(null);
 
   const [styles, setStyles] = useState({
