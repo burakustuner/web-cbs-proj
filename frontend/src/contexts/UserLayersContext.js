@@ -115,6 +115,24 @@ export function UserLayersProvider({ children, map }) {
 
   */
 
+  const renameLayer = (layerId, newName) => {
+    console.log("🧠 renameLayer çağrıldı:", layerId, "→", newName);
+  
+    setUserLayers((prevLayers) => {
+      const updated = prevLayers.map((layer) => {
+        const isMatch = layer.id === layerId;
+        if (isMatch) {
+          console.log("🔁 Güncelleniyor:", layer.filename, "→", newName);
+        }
+        return isMatch ? { ...layer, filename: newName } : layer;
+      });
+  
+      console.log("🧾 Yeni userLayers listesi:", updated.map(l => ({ id: l.id, filename: l.filename })));
+  
+      return updated;
+    });
+  };
+
   const removeLayer = (layerId) => {
   const layerObj = userLayers.find(l => l.id === layerId);
   if (!layerObj) return;
@@ -163,6 +181,7 @@ export function UserLayersProvider({ children, map }) {
         zoomToLayer,
         addFeatureToActiveLayer,
         getActiveLayer,
+        renameLayer
       }}
     >
       {children}

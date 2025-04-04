@@ -202,7 +202,7 @@ function App() {
       }
     }
   };
-
+/*
   const renameLayer = (layerKey, newName) => {
     if (systemLayers[layerKey]) {
       setSystemLayers(prev => ({
@@ -218,7 +218,7 @@ function App() {
       ));
     }
   };
-
+*/
   const handleGeoJSONImport = ({ filename, data }) => {
     if (!map) return;
     const source = new VectorSource({
@@ -286,7 +286,6 @@ function App() {
         onBringToFront={bringLayerToFront}
         onChangeStyle={changeLayerStyle}
         onRemoveLayer={removeLayer}
-        onRenameLayer={renameLayer}
         userLayers={userLayers}
         setUserLayers={setUserLayers}
         onOpenStyleEditor={(key) => {

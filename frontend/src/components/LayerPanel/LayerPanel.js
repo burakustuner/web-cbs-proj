@@ -28,7 +28,7 @@ function LayerPanel({
   const [contextMenu, setContextMenu] = useState(null);
   const [minimized, setMinimized] = useState(false);
   const prevUserLayerIds = useRef([]);
-
+  const { renameLayer } = useUserLayers();
   // Yeni katman eklendiğinde otomatik görünür yap
   useEffect(() => {
     const newIds = userLayers
@@ -270,17 +270,21 @@ function LayerPanel({
   🎨 Stil Değiştir
 </li>
 
-          <li
-            onClick={() => {
-              const newName = prompt("Yeni katman adı:");
-              if (!newName || newName.trim() === '') return;
-              onRenameLayer(contextMenu.layerKey, newName);
-              closeContextMenu();
-            }}
-            style={menuStyle}
-          >
-            📝 İsim Değiştir
-          </li>
+<li
+  onClick={() => {
+    const newName = prompt("Yeni katman adı:");
+    if (!newName || newName.trim() === '') return;
+    const key = contextMenu.layerKey;
+    const id = key.replace("user-", "");
+
+    console.log("📝 İsim değiştiriliyor:", key, "→", newName);
+    renameLayer(id, newName); // ✅ context’ten gelen doğru fonksiyon
+    closeContextMenu();
+  }}
+  style={menuStyle}
+>
+  📝 İsim Değiştir
+</li>
 
           <li
   onClick={() => {
