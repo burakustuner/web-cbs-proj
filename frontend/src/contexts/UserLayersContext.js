@@ -96,6 +96,7 @@ export function UserLayersProvider({ children, map }) {
   }, [userLayers, activeLayerId]);
 
   const addFeatureToActiveLayer = useCallback((feature) => {
+    console.log(`🟢 UserLayersContext: addFeatureToActiveLayer çağrıldı - Feature ID: ${feature.getId()}`);
     let layer = getActiveLayer();
 
     if (!layer) {
