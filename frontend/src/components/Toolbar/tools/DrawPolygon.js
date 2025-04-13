@@ -1,37 +1,11 @@
 // src/components/Toolbar/tools/DrawPolygon.js
-import React, { useEffect } from 'react';
-import { Draw } from 'ol/interaction';
-import { unByKey } from 'ol/Observable';
-import { useUserLayers } from '../../../contexts/UserLayersContext';
+import React from 'react';
 import { useToolManager } from '../../../contexts/ToolManagerContext';
-import { generateSmartFeatureId } from '../../../utils/generateSmartFeatureId';
+import DrawInteraction from './DrawInteraction';
 
 function DrawPolygon({ map }) {
-  const { addFeatureToActiveLayer } = useUserLayers();
   const { openTool, isToolActive, closeTool } = useToolManager();
-
   const active = isToolActive('draw-polygon');
-
-  useEffect(() => {
-    if (!map || !active) return;
-
-    const draw = new Draw({
-      source: null,
-      type: 'Polygon',
-    });
-
-    map.addInteraction(draw);
-
-    const listener = draw.on('drawend', (event) => {
-      const feature = event.feature;
-      feature.setId(generateSmartFeatureId(feature));
-      addFeatureToActiveLayer(feature);
-    });
-    return () => {
-      map.removeInteraction(draw);
-      unByKey(listener);
-    };
-  }, [map, active]);
 
   return (
     <div style={{ padding: "5px" }}>
@@ -46,9 +20,7 @@ function DrawPolygon({ map }) {
               title: 'New Polygon',
               singleton: true,
               canWorkTogether: false,
-              //component: DrawPolygon, // ✅ sadece aktifse render edilir
-              //props: { map },       // ✅ isteğe bağlı prop'lar
-              render: () => <DrawPolygon map={map} />
+              render: () => <DrawInteraction map={map} type="Polygon" />,
             });
           }
         }}
