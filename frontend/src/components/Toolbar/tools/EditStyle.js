@@ -15,17 +15,24 @@ function EditStyle({ map }) {
     if (!map || !active) return;
 
     const clickHandler = map.on('click', (evt) => {
-      console.log('🖱️ Haritaya tıklandı'); // <-- BU GELMİYORSA sorun burda
-      const feature = map.forEachFeatureAtPixel(evt.pixel, (feat) => feat);
-      if (!feature || feature === selectedFeature) return;
-      console.log('🧩 Seçilen Feature:', feature);
+      console.log('🖱️ Haritaya tıklandı');
+      const feature = map.forEachFeatureAtPixel(evt.pixel, (feat) => {
+        return feat; // Return the first feature found
+      }, {
+        hitTolerance: 5 // Keep hit tolerance
+      });
+
+      if (!feature || feature === selectedFeature) {
+        return;
+      }
+      console.log('🧩 Seçilen Feature:', feature); // Keep this log for now
       setSelectedFeature(feature);
 
       openTool({
         id: 'feature-style-editor',
         title: 'Stil Düzenleyici',
         singleton: true,
-        canWorkTogether: false,
+        canWorkTogether: true,
         render: () => (
           <FeatureStyleEditorModal
             feature={feature}
@@ -42,7 +49,7 @@ function EditStyle({ map }) {
       console.log('🧹 EditStyle temizlendi');
       unByKey(clickHandler);
     };
-  }, [map, active, selectedFeature, openTool, closeTool]);
+  }, [map, active, openTool, closeTool]);
 
   return (
     <div style={{ padding: "5px" }}>
